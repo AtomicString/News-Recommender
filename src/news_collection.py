@@ -13,4 +13,4 @@ global_headlines = [x['title'] for x in article_list]
 global_articles = [x['description'] for x in article_list]
 
 data = pd.DataFrame({'headline': global_headlines, 'text': global_articles})
-data.to_csv('news_data.csv', index=False)
+data.to_csv('data/news_data.csv', index=False)
