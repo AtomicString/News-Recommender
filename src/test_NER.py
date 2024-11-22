@@ -6,8 +6,22 @@ from transformers import BertTokenizer
 from functools import partial
 
 
-def test_func(model, tokenizer, tag_values, test_sentence):
+data = pd.read_csv("data/eng_train.txt",
+                   encoding="utf-8", sep=" ", header=None, skip_blank_lines=False)
+data.columns = ["Word", "POS", "IOB tags", "Tag"]
+tag_values = list(set(data["Tag"].values))
+tag_values.append("PAD")
+
+
+tokenizer = BertTokenizer.from_pretrained(
+    'bert-base-cased', do_lower_case=False)
+
+model = pickle.load(open('models/model.pickle', 'rb'))
+
+
+def test_func(test_sentence):
     tokenized_sentence = tokenizer.encode(test_sentence)
+    print(tokenized_sentence)
     input_ids = torch.tensor([tokenized_sentence]).cuda()
     ner_tokens = []
     ner = []
@@ -34,21 +48,5 @@ def test_func(model, tokenizer, tag_values, test_sentence):
     return ner_tokens, ner
 
 
-data = pd.read_csv("data/eng_train.txt",
-                   encoding="utf-8", sep=" ", header=None, skip_blank_lines=False)
-data.columns = ["Word", "POS", "IOB tags", "Tag"]
-tag_values = list(set(data["Tag"].values))
-tag_values.append("PAD")
-
-
-tokenizer = BertTokenizer.from_pretrained(
-    'bert-base-cased', do_lower_case=False)
-
-model = pickle.load(open('models/model.pickle', 'rb'))
-
-get_test_BIO = partial(test_func, model=model,
-                       tokenizer=tokenizer, tag_values=tag_values)
-
 if __name__ == "__main__":
-    print(get_test_BIO(
-        test_sentence="Elections Live: Nitin Gadkari, Sharad Pawar cast vote in Maharashtra"))
+    print(test_func("Mr. Trump’s tweets began just moments after a Fox News report by Mike Tobin, a reporter for the network, about protests in Minnesota and elsewhere."))
